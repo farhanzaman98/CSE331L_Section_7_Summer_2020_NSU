@@ -1,80 +1,44 @@
-
 .MODEL SMALL
 .STACK 100H
-
-
 .DATA
-  PROMPT_1 DB 'Enter the First Digit: $'
-  PROMPT_2 DB 'Enter The Second Digit: $'
-  PROMPT_3 DB 'Sum:$'
-
-  VALUE_1 DB ?
-  VALUE_2 DB ?
-  
-  
+ PROMPT DB 'Enter the digit : $'
+ MSG DB 'The entered digit is : $'
 .CODE
-  
-  MAIN PROC
-   
-    MOV AX, @DATA
+    MAIN PROC
+    MOV AX, @DATA ; initialize DS
     MOV DS, AX
-    
-    LEA DX, PROMPT_1
+    LEA DX, PROMPT ; load and print PROMPT
     MOV AH, 9
     INT 21H
-    
-    MOV AH, 1
+    MOV AH, 1 ; read a character
     INT 21H
-    
-    SUB AL, 30H
-    MOV VALUE_1, AL
-    
-    MOV AH, 2
+    MOV BL, AL ; save the input character into BL
+    MOV AH, 2 ; carriage return
     MOV DL, 0DH
     INT 21H
-    
-    MOV DL, 0AH
+    MOV DL, 0AH ; line feed
     INT 21H
-    
-    LEA DX, PROMPT_2
+    LEA DX, MSG ; load and print MSG
     MOV AH, 9
     INT 21H
+    CMP BL, 30H ; compare input digit and 0
+    JL @NEGATIVE ; jump to label @NEGATIVE if digit<0
+    JZ @ZERO ; jump to label @ZERO if digit=0
+    JG @POSITIVE ; jump to label @POSITIVE if digit>0
+    @NEGATIVE: ; jump label
     
-    MOV AH, 1
+    MOV DL, 'N'
+    JMP @DISPLAY ; jump to label @DISPLAY
+    @ZERO: ; jump label
+    MOV DL, 'Z'
+    JMP @DISPLAY ; jump to label @DISPLAY
+    @POSITIVE: ; jump label
+    MOV DL, 'P'
+    JMP @DISPLAY ; jump to label @DISPLAY
+    @DISPLAY: ; jump label
+    MOV AH, 2 ; print the character
     INT 21H
-    
-    SUB AL, 30H
-    MOV VALUE_2, AL
-    
-    
-    MOV AH, 2
-    MOV DL, 0DH
+    MOV AH, 4CH ; return control to DOS
     INT 21H
-    
-    
-    MOV DL, 0AH
-    INT 21H                     
-  
-    
-    LEA DX, PROMPT_3
-    MOV AH, 9
-    INT 21H
-    
-    
-    MOV AL, VALUE_1
-    ADD AL, VALUE_2
-    
-    ADD AL, 30H
-    
-    MOV AH, 2
-    MOV DL,AL
-    INT 21H
-
-    
-    MOV AH, 4CH
-    INT 21H
-    
- MAIN ENDP
+  MAIN ENDP
 END MAIN
-    
-    
